@@ -1,0 +1,24 @@
+[telegram]
+token = ""
+workers = 0
+admins = []
+
+[plugins]
+dir = "bot/handlers/"
+manifest = "manifest" # a partire dalla cartella dei plugins
+
+[jobs]
+dir = "bot/jobs/"
+manifest = "manifest" # a partire dalla cartella dei jobs
+requests_cooldown = 0
+
+[logging]
+config = "logging.json"
+filepath = "logs/wasearch.log"
+
+[sqlite]
+filename = 'wasearch.db'
+
+[vcs]
+source_code = ""
+issues = ""
