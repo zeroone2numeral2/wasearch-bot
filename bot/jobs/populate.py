@@ -34,15 +34,24 @@ def process_li(li, section):
     i = 0
     for a in a_all:
         if li.text and '/t.me/' in a['href'].lower():
-            name = u.strip_emojis(li.text).strip().replace(' | TV', '')
+            logger.info('>>> processing list line  <%s>, <a> tag: %d/%d', li.text, i + 1, len(a_all))
+            name = u.strip_emojis(li.text).strip().replace(' | TV', '').replace(' | TV', '')
+            # per alcuni motivi, uno (o più) anime della lista hanno la stringa ' | TV' codificata in modo diverso
+            # (notato con l'anime Dungeon ni Deai wo Motomeru no wa Machigatte Iru Darou ka?), quindi
+            # dobbiamo fare il replace di entrambe
+            # logger.info('%s', str(' | TV' == ' | TV'))  # il secondo è preso da un file di log. La if ritorna False
 
             if len(a_all) > 1:
                 # può essere che l'elemento <li> nella lista contenga più link nella stessa riga (es. db super)
                 # se è così, allora contiamo quanti <a> vengono contati in a_all. Se sono più di uno, splittiamo
                 # la stringa (li.text, nome dell'anime) in due in corrispondenza del ' | '
 
-                logger.info('two (or more) <a> tags in the same list element <li>: splitting "%s" at "%s"...', name,
-                            NAME_SEP_1)
+                logger.info(
+                    '%d <a> tags in the same list element <li>: splitting "%s" at character "%s"...',
+                    len(a_all),
+                    name,
+                    NAME_SEP_1
+                )
                 name = u.split_li_item(name, index=i)
                 logger.info('...anime name post-split: %s', name)
 
