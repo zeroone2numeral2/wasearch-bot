@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @Plugins.add(MessageHandler, filters=Filters.text)
-def on_command(bot, update):
+def on_command(_, update):
     logger.debug('new search query')
     
     query = update.message.text
@@ -23,8 +23,7 @@ def on_command(bot, update):
     
     result = Anime.search(query, group_by_category=True)
     if not result:
-        update.message.reply_html(String.ANIME_NOT_FOUND.format(query=query, issues_tracker=config.vcs.issues),
-                                  disable_web_page_preview=True)
+        update.message.reply_html(String.ANIME_NOT_FOUND.format(query=query), disable_web_page_preview=True)
         return
     
     text = ''

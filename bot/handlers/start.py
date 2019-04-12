@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 @Plugins.add(CommandHandler, command=['start', 'help'])
-def on_start_help(bot, update):
+def on_start_help(_, update):
     logger.debug('/start or /help')
     
     update.message.reply_text(String.START, reply_markup=InlineKeyboard.MORE_HELP)
     
 
 @Plugins.add(CallbackQueryHandler, pattern=r'morehelp')
-def on_more_help_button(bot, update):
+def on_more_help_button(_, update):
     logger.debug('more help inline button')
     
     update.callback_query.edit_message_text(
@@ -32,7 +32,7 @@ def on_more_help_button(bot, update):
 
 
 @Plugins.add(CallbackQueryHandler, pattern=r'lesshelp')
-def on_less_help_button(bot, update):
+def on_less_help_button(_, update):
     logger.debug('less help inline button')
     
     update.callback_query.edit_message_text(String.START, reply_markup=InlineKeyboard.MORE_HELP)
