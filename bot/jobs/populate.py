@@ -26,7 +26,6 @@ SECTIONS = [
     Section('lista-cartoon', 'cartoon')
 ]
 NAME_SEP_1 = ' | '
-NAME_SEP_2 = ' | '  # porcoddio porcalamadonna porco quello storpio di gesù incalcato
 
 
 @Jobs.add(RUNNERS.run_daily, time=datetime.time(hour=4, minute=0))
