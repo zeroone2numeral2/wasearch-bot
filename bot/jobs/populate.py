@@ -28,6 +28,34 @@ SECTIONS = [
 NAME_SEP_1 = ' | '
 
 
+def process_li(li, section):
+    a_all = li.find_all('a', href=True)
+
+    i = 0
+    for a in a_all:
+        if li.text and '/t.me/' in a['href'].lower():
+            name = u.strip_emojis(li.text).strip().replace(' | TV', '')
+
+            if len(a_all) > 1:
+                # può essere che l'elemento <li> nella lista contenga più link nella stessa riga (es. db super)
+                # se è così, allora contiamo quanti <a> vengono contati in a_all. Se sono più di uno, splittiamo
+                # la stringa (li.text, nome dell'anime) in due in corrispondenza del ' | '
+
+                logger.info('two (or more) <a> tags in the same list element <li>: splitting "%s" at "%s"...', name,
+                            NAME_SEP_1)
+                name = u.split_li_item(name, index=i)
+                logger.info('...anime name post-split: %s', name)
+
+            logger.info('upserting: %s', name)
+            Anime.upsert({
+                'name': name,
+                'url': a['href'],
+                'category': section.description
+            })
+
+            i += 1
+
+
 @Jobs.add(RUNNERS.run_daily, time=datetime.time(hour=4, minute=0))
 # @Jobs.add(RUNNERS.run_repeating, interval=5000, first=0)
 def populate_db(bot, job):
@@ -40,31 +68,11 @@ def populate_db(bot, job):
         result = requests.get(url)
     
         soup = BeautifulSoup(result.text, features='html.parser')
-        
+
         for li in soup.find_all('li'):
-            a_all = li.find_all('a', href=True)
-            
-            i = 0
-            for a in a_all:
-                if li.text and '/t.me/' in a['href'].lower():
-                    name = u.strip_emojis(li.text).strip().replace(' | TV', '')
-                    
-                    if len(a_all) > 1:
-                        # può essere che l'elemento <li> nella lista contenga più link nella stessa riga (es. db super)
-                        # se è così, allora contiamo quanti <a> vengono contati in a_all. Se sono più di uno, splittiamo
-                        # la stringa (li.text, nome dell'anime) in due in corrispondenza del ' | '
-                        
-                        logger.info('two (or more) <a> tags in the same list element <li>: splitting "%s" at "%s"...', name, NAME_SEP_1)
-                        name = u.split_li_item(name, index=i)
-                        logger.info('...anime name post-split: %s', name)
-                    
-                    logger.info('upserting: %s', name)
-                    Anime.upsert({
-                        'name': name,
-                        'url': a['href'],
-                        'category': section.description
-                    })
-                    
-                    i += 1
+            try:
+                process_li(li, section)
+            except Exception as e:
+                logger.error('error while processing <li> element: %s', str(e), exc_info=True)
         
         time.sleep(config.jobs.requests_cooldown)
